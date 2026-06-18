@@ -13,7 +13,7 @@ public partial class App : Application
     private static readonly string LogPath =
         Path.Combine(Path.GetTempPath(), "floatingcam.log");
 
-    // Mantém o mutex vivo enquanto o app roda (instância única).
+    // Keeps the mutex alive while the app runs (single instance).
     private Mutex? _instanceMutex;
 
     public App()
@@ -27,8 +27,8 @@ public partial class App : Application
         _instanceMutex = new Mutex(initiallyOwned: true, "FloatingCam.SingleInstance", out bool isNew);
         if (!isNew)
         {
-            // Já existe uma instância: não abre uma segunda (evita sobrescrever
-            // as configurações com valores padrão ao fechar a duplicata).
+            // An instance already exists: don't open a second one (avoids overwriting
+            // the settings with default values when the duplicate is closed).
             Log("Segunda instância detectada — encerrando.");
             Shutdown();
             return;
@@ -39,13 +39,13 @@ public partial class App : Application
     public static void Log(string msg)
     {
         try { File.AppendAllText(LogPath, $"{DateTime.Now:HH:mm:ss.fff} {msg}{Environment.NewLine}"); }
-        catch { /* log é best-effort */ }
+        catch { /* logging is best-effort */ }
     }
 
     private void OnDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         Log($"DISPATCHER EXCEPTION: {e.Exception}");
-        e.Handled = true; // não derruba o app por erro de UI
+        e.Handled = true; // don't crash the app on a UI error
     }
 
     private void OnDomainException(object sender, UnhandledExceptionEventArgs e)

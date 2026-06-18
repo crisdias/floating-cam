@@ -19,9 +19,9 @@
                     MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
                     Cursor="SizeAll">
                 <Image x:Name="PreviewImage" Canvas.Left="0" Canvas.Top="0"/>
-                <!-- Máscara escura fora da moldura (geometria definida em código) -->
+                <!-- Dark mask outside the guide (geometry set in code) -->
                 <Path x:Name="DimPath" Fill="#99000000" IsHitTestVisible="False"/>
-                <!-- Moldura do recorte -->
+                <!-- Crop guide rectangle -->
                 <Rectangle x:Name="CropRect" Stroke="White" StrokeThickness="2"
                            StrokeDashArray="4 3" IsHitTestVisible="False"/>
             </Canvas>

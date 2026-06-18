@@ -26,7 +26,7 @@
         </ContextMenu>
     </Window.ContextMenu>
 
-    <!-- A borda recebe o clique para arrastar a janela -->
+    <!-- The border receives the click to drag the window -->
     <Border x:Name="RootBorder" Background="Black" CornerRadius="0" ClipToBounds="True"
             MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
         <Border.Clip>

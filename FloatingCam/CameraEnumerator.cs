@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 namespace FloatingCam;
 
 /// <summary>
-/// Enumera as webcams via DirectShow. A ordem retornada casa com o índice
-/// usado por OpenCvSharp.VideoCapture(index, VideoCaptureAPIs.DSHOW).
+/// Enumerates webcams via DirectShow. The returned order matches the index
+/// used by OpenCvSharp.VideoCapture(index, VideoCaptureAPIs.DSHOW).
 /// </summary>
 public static class CameraEnumerator
 {
@@ -23,7 +23,7 @@ public static class CameraEnumerator
         if (hr != 0 || enumMoniker is null)
         {
             Marshal.ReleaseComObject(devEnum);
-            return result; // nenhuma câmera
+            return result; // no cameras
         }
 
         var monikers = new IMoniker[1];
@@ -57,7 +57,7 @@ public static class CameraEnumerator
         }
         catch
         {
-            // moniker sem FriendlyName legível — usa nome genérico no chamador
+            // moniker without a readable FriendlyName — caller uses a generic name
         }
         finally
         {
@@ -92,7 +92,7 @@ public static class CameraEnumerator
     [ComImport, Guid("0000000f-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IMoniker
     {
-        // Apenas BindToStorage é necessário; os demais slots da vtable são preenchidos para manter o layout.
+        // Only BindToStorage is needed; the other vtable slots are declared to keep the layout.
         void GetClassID(out Guid pClassID);
         [PreserveSig] int IsDirty();
         void Load(IntPtr pStm);
@@ -100,7 +100,7 @@ public static class CameraEnumerator
         void GetSizeMax(out long pcbSize);
         void BindToObject(IntPtr pbc, IntPtr pmkToLeft, [In] ref Guid riidResult, [MarshalAs(UnmanagedType.IUnknown)] out object ppvResult);
         void BindToStorage(IntPtr pbc, IntPtr pmkToLeft, [In] ref Guid riid, [MarshalAs(UnmanagedType.IUnknown)] out object ppvObj);
-        // Demais métodos omitidos — não usados.
+        // Remaining methods omitted — not used.
     }
 
     [ComImport, Guid("55272A00-42CB-11CE-8135-00AA004BB851"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

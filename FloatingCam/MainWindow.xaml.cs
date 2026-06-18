@@ -46,23 +46,23 @@ public partial class MainWindow : System.Windows.Window
     private Settings _settings = new();
     private bool _restoring;
 
-    // Enquadramento: zoom (>=1) e centro do recorte em coordenadas normalizadas da câmera.
+    // Framing: zoom (>=1) and crop center in normalized camera coordinates.
     private double _zoom = 1.0;
     private double _centerX = 0.5;
     private double _centerY = 0.5;
     private readonly ImageBrush _videoBrush = new() { Stretch = Stretch.Fill };
     private FramingWindow? _framingWindow;
 
-    /// <summary>Bitmap ao vivo da webcam (atualizado in-place a cada frame).</summary>
+    /// <summary>Live webcam bitmap (updated in-place on every frame).</summary>
     public WriteableBitmap? VideoSource => _bitmap;
-    /// <summary>Disparado quando o bitmap é recriado (mudança de resolução).</summary>
+    /// <summary>Raised when the bitmap is recreated (resolution change).</summary>
     public event EventHandler? VideoSourceChanged;
 
     public double FramingZoom => _zoom;
     public double FramingCenterX => _centerX;
     public double FramingCenterY => _centerY;
 
-    /// <summary>Proporção largura/altura do quadro capturado pela webcam (para o preview do ajuste).</summary>
+    /// <summary>Width/height ratio of the captured webcam frame (for the framing preview).</summary>
     public double CameraAspect =>
         _bitmap is { PixelHeight: > 0 } ? (double)_bitmap.PixelWidth / _bitmap.PixelHeight : 16.0 / 9.0;
 
@@ -70,8 +70,8 @@ public partial class MainWindow : System.Windows.Window
     public double CameraHeightPx => _bitmap?.PixelHeight ?? 0;
 
     /// <summary>
-    /// Fração (0..1) do quadro da câmera que a janela exibe, por eixo, dado o zoom.
-    /// Considera o recorte do UniformToFill (quando a proporção da janela difere da câmera).
+    /// Fraction (0..1) of the camera frame the window shows, per axis, for a given zoom.
+    /// Accounts for the UniformToFill crop (when window aspect differs from the camera's).
     /// </summary>
     public (double w, double h) VisibleFraction(double zoom)
     {
@@ -80,7 +80,7 @@ public partial class MainWindow : System.Windows.Window
         if (ww <= 0 || wh <= 0 || cw <= 0 || ch <= 0 || zoom <= 0)
             return (1.0 / Math.Max(zoom, 1.0), 1.0 / Math.Max(zoom, 1.0));
 
-        double fill = Math.Max(ww / cw, wh / ch); // escala do UniformToFill
+        double fill = Math.Max(ww / cw, wh / ch); // UniformToFill scale
         double wn = ww / (cw * fill * zoom);
         double hn = wh / (ch * fill * zoom);
         return (Math.Min(1.0, wn), Math.Min(1.0, hn));
@@ -97,7 +97,7 @@ public partial class MainWindow : System.Windows.Window
         MenuRound.Click += (_, _) => SetShape(MenuRound.IsChecked ? ShapeMode.Rounded : ShapeMode.Normal);
         MenuCircle.Click += (_, _) => SetShape(MenuCircle.IsChecked ? ShapeMode.Circle : ShapeMode.Normal);
 
-        // O grip de redimensionar só aparece quando a janela tem foco.
+        // The resize grip only shows while the window has focus.
         Activated += (_, _) => ResizeMode = ResizeMode.CanResizeWithGrip;
         Deactivated += (_, _) => ResizeMode = ResizeMode.NoResize;
 
@@ -137,8 +137,8 @@ public partial class MainWindow : System.Windows.Window
         }
     }
 
-    // Garante que o canto superior esquerdo cai dentro da área de trabalho virtual
-    // (evita restaurar a janela fora da tela se um monitor foi desconectado).
+    // Ensures the top-left corner falls inside the virtual desktop
+    // (avoids restoring the window off-screen if a monitor was disconnected).
     private static bool IsOnScreen(double left, double top)
     {
         double vx = SystemParameters.VirtualScreenLeft;
@@ -177,7 +177,7 @@ public partial class MainWindow : System.Windows.Window
     {
         App.Log($"Loaded: restaurando W={_settings.Width} H={_settings.Height} L={_settings.Left} T={_settings.Top} Shape={_settings.Shape} Mirror={_settings.Mirror} Cam={_settings.CameraIndex}");
 
-        // Restaura espelho e formato salvos.
+        // Restore the saved mirror and shape.
         _restoring = true;
         _mirror = _settings.Mirror;
         MenuMirror.IsChecked = _mirror;
@@ -205,7 +205,7 @@ public partial class MainWindow : System.Windows.Window
         BuildCameraMenu();
         StartCaptureThread();
 
-        // Abre a câmera salva, se ainda existir; senão a primeira disponível.
+        // Open the saved camera if it still exists; otherwise the first available one.
         if (cams.Count > 0)
         {
             bool savedExists = cams.Any(c => c.Index == _settings.CameraIndex);
@@ -245,7 +245,7 @@ public partial class MainWindow : System.Windows.Window
             MenuCameras.Items.Add(item);
         }
 
-        // Item para reescanear caso uma câmera seja conectada depois.
+        // Lets the user rescan if a camera is connected later.
         MenuCameras.Items.Add(new Separator());
         var rescan = new MenuItem { Header = "Atualizar lista" };
         rescan.Click += (_, _) => BuildCameraMenu();
@@ -261,7 +261,7 @@ public partial class MainWindow : System.Windows.Window
 
         if (!_restoring) SaveSettings();
 
-        // Abrir a câmera pode bloquear ~1s; faz fora da UI.
+        // Opening the camera can block ~1s; do it off the UI thread.
         Task.Run(() =>
         {
             try
@@ -278,9 +278,9 @@ public partial class MainWindow : System.Windows.Window
                     return;
                 }
 
-                // Tenta HD 16:9 com MJPG (comprimido). Câmeras USB3 (ex.: Brio) aceitam e
-                // entregam 30fps. Câmeras que só fazem formato cru (YUY2) saturam o USB em
-                // HD e travam o FPS — nesse caso caímos para um 16:9 menor, que roda suave.
+                // Try HD 16:9 with MJPG (compressed). USB3 cameras (e.g. Brio) accept it and
+                // deliver 30fps. Cameras that only do raw format (YUY2) saturate USB at HD
+                // and the FPS collapses — in that case we drop to a smaller 16:9 that runs smooth.
                 cap.Set(VideoCaptureProperties.FourCC, VideoWriter.FourCC('M', 'J', 'P', 'G'));
                 cap.Set(VideoCaptureProperties.FrameWidth, 1280);
                 cap.Set(VideoCaptureProperties.FrameHeight, 720);
@@ -361,7 +361,7 @@ public partial class MainWindow : System.Windows.Window
             if (_mirror)
                 Cv2.Flip(frame, frame, FlipMode.Y);
 
-            // Mede o FPS real uma vez (~3s após começar) para diagnóstico.
+            // Measure the real FPS once (~3s after starting) for diagnostics.
             if (!fpsLogged)
             {
                 frames++;
@@ -380,7 +380,7 @@ public partial class MainWindow : System.Windows.Window
             catch (TaskCanceledException)
             {
                 clone.Dispose();
-                break; // janela fechando
+                break; // window closing
             }
           }
           catch (Exception ex)
@@ -400,8 +400,8 @@ public partial class MainWindow : System.Windows.Window
             {
                 _bitmap = new WriteableBitmap(frame.Width, frame.Height, 96, 96, PixelFormats.Bgr24, null);
                 _videoBrush.ImageSource = _bitmap;
-                // A resolução só é conhecida quando o 1º frame chega; recalcula o
-                // recorte agora (senão a proporção fica errada e a imagem distorce).
+                // The resolution is only known when the 1st frame arrives; recompute the
+                // crop now (otherwise the aspect is wrong and the image distorts).
                 ApplyFramingToMain();
                 VideoSourceChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -453,9 +453,9 @@ public partial class MainWindow : System.Windows.Window
     }
 
     /// <summary>
-    /// Retângulo (normalizado, coords da câmera) que a janela exibe, dado zoom e centro.
-    /// O centro é "clampado" para o recorte ficar dentro do quadro. Mesma fonte de
-    /// verdade usada pela janela (ImageBrush.Viewbox) e pelo seletor de enquadramento.
+    /// Rectangle (normalized, camera coords) the window displays, for a given zoom and center.
+    /// The center is clamped so the crop stays inside the frame. Same source of truth used by
+    /// the window (ImageBrush.Viewbox) and by the framing selector.
     /// </summary>
     public System.Windows.Rect CropRect(double zoom, double cx, double cy)
     {
@@ -469,18 +469,18 @@ public partial class MainWindow : System.Windows.Window
     {
         var crop = CropRect(_zoom, _centerX, _centerY);
         _videoBrush.Viewbox = crop;
-        // Mantém os campos com o centro já "clampado".
+        // Keep the fields holding the already-clamped center.
         _centerX = crop.X + crop.Width / 2;
         _centerY = crop.Y + crop.Height / 2;
     }
 
-    /// <summary>Define o enquadramento (zoom + centro normalizado), aplica e salva.</summary>
+    /// <summary>Sets the framing (zoom + normalized center), applies it and saves.</summary>
     public void SetFraming(double zoom, double centerX, double centerY)
     {
         _zoom = Math.Clamp(zoom, 1.0, 4.0);
         _centerX = centerX;
         _centerY = centerY;
-        ApplyFramingToMain(); // faz o clamp do centro
+        ApplyFramingToMain(); // clamps the center
         if (!_restoring) SaveSettings();
     }
 

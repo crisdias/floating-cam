@@ -6,11 +6,11 @@ using System.Windows.Media;
 namespace FloatingCam;
 
 /// <summary>
-/// Janela de ajuste de enquadramento. Mostra o sinal completo da webcam e uma
-/// moldura (arrastável) indicando a região que a caixa flutuante vai exibir.
-/// A moldura usa exatamente o mesmo retângulo de recorte (MainWindow.CropRect)
-/// que a janela principal aplica via ImageBrush.Viewbox — então o preview bate
-/// 1:1 com o resultado. Zoom redimensiona; arrastar reposiciona.
+/// Framing adjustment window. Shows the full webcam signal with a draggable guide
+/// rectangle indicating the region the floating box will display. The guide uses the
+/// exact same crop rectangle (MainWindow.CropRect) the main window applies via
+/// ImageBrush.Viewbox — so the preview matches the result 1:1. Zoom resizes; drag
+/// repositions.
 /// </summary>
 public partial class FramingWindow : System.Windows.Window
 {
@@ -70,7 +70,7 @@ public partial class FramingWindow : System.Windows.Window
         SyncFromMain();
     }
 
-    // Desenha a moldura e a máscara a partir do recorte real da janela principal.
+    // Draws the guide and the mask from the main window's actual crop.
     private void SyncFromMain()
     {
         _syncing = true;
@@ -88,7 +88,7 @@ public partial class FramingWindow : System.Windows.Window
         CropRect.Width = rw;
         CropRect.Height = rh;
 
-        // Máscara escura = área do preview menos a moldura (regra par-ímpar).
+        // Dark mask = preview area minus the guide rectangle (even-odd rule).
         var group = new GeometryGroup { FillRule = FillRule.EvenOdd };
         group.Children.Add(new RectangleGeometry(new Rect(0, 0, _pw, _ph)));
         group.Children.Add(new RectangleGeometry(new Rect(rx, ry, rw, rh)));
@@ -113,7 +113,7 @@ public partial class FramingWindow : System.Windows.Window
         double dy = pos.Y - _lastPos.Y;
         _lastPos = pos;
 
-        // Arrastar move a moldura na direção do cursor (1 px do preview = 1/_pw da câmera).
+        // Dragging moves the guide toward the cursor (1 preview px = 1/_pw of the camera).
         double newCx = _main.FramingCenterX + dx / _pw;
         double newCy = _main.FramingCenterY + dy / _ph;
         _main.SetFraming(_main.FramingZoom, newCx, newCy);
