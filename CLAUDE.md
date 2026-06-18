@@ -66,18 +66,18 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
-# FloatingCam — específico do projeto
+# FloatingCam — project-specific
 
-App **Windows-only**: caixa flutuante com a webcam (always-on-top, sem bordas),
-movível/redimensionável, para gravar aulas no OBS via captura de tela.
+**Windows-only** app: a floating, borderless, always-on-top webcam box that can be
+moved/resized, for recording lessons in OBS via screen capture.
 
 ## Stack
-- **C# / .NET 10 (WPF)**, `net10.0-windows`. Projeto em `FloatingCam/`.
-- Vídeo via **OpenCvSharp4** (backend **DirectShow**). Conversão de frame com
+- **C# / .NET 10 (WPF)**, `net10.0-windows`. Project lives in `FloatingCam/`.
+- Video via **OpenCvSharp4** (**DirectShow** backend). Frame conversion via
   `OpenCvSharp4.WpfExtensions`.
 
-## Comandos
-O `dotnet` pode não estar no PATH deste ambiente; use o caminho completo:
+## Commands
+`dotnet` may not be on PATH in this environment; use the full path:
 `"C:\Program Files\dotnet\dotnet.exe"`.
 
 ```powershell
@@ -85,38 +85,39 @@ O `dotnet` pode não estar no PATH deste ambiente; use o caminho completo:
 dotnet build FloatingCam -c Release
 dotnet run --project FloatingCam -c Release
 
-# Publicar .exe ÚNICO (libs nativas embutidas) — é o que o CI e o instalador usam
+# Publish a SINGLE .exe (native libs bundled) — what the CI and installer use
 dotnet publish FloatingCam -c Release -r win-x64 --self-contained true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
   -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
 ```
 
-## Como verificar (não há testes automatizados)
-- App de GUI: rode o `.exe` e confira o **log** em `%Temp%\floatingcam.log`
-  (enumeração de câmeras, resolução/fourcc, FPS medido, exceções).
-- Configurações persistidas em `%AppData%\FloatingCam\settings.json`
-  (tamanho, posição, câmera, espelho, formato, zoom, centro do enquadramento).
-- **Instância única** (mutex `FloatingCam.SingleInstance`): pare o app antes de
-  rodar outra instância nos testes, senão a segunda encerra sozinha e/ou o arquivo
-  fica travado ao republicar. `Get-Process FloatingCam | Stop-Process -Force`.
+## How to verify (no automated tests)
+- It's a GUI app: run the `.exe` and check the **log** at `%Temp%\floatingcam.log`
+  (camera enumeration, resolution/fourcc, measured FPS, exceptions).
+- Settings persist in `%AppData%\FloatingCam\settings.json`
+  (size, position, camera, mirror, shape, zoom, framing center).
+- **Single instance** (mutex `FloatingCam.SingleInstance`): stop the app before
+  launching another instance in tests, otherwise the second one exits by itself
+  and/or the file is locked when republishing.
+  `Get-Process FloatingCam | Stop-Process -Force`.
 
-## Armadilhas já resolvidas (não regredir)
-- **Enumeração de câmeras** (`CameraEnumerator.cs`): interop COM do DirectShow. O
-  método `IEnumMoniker.Next` PRECISA do atributo `[Out]` + `ArraySubType=Interface`,
-  senão a lista volta vazia e o app abre preto.
-- **Enquadramento** (zoom + reposição): há UMA fonte de verdade,
-  `MainWindow.CropRect(zoom, centerX, centerY)` em coords normalizadas da câmera.
-  A janela aplica via `ImageBrush.Viewbox`; o seletor (`FramingWindow`) desenha a
-  moldura com o MESMO `CropRect`. Não reintroduzir `UniformToFill` + transform
-  (causava divergência seletor↔janela e distorção).
-- **Recorte recalcula quando o 1º frame chega** (em `RenderFrame`): a resolução só
-  é conhecida aí; sem recalcular, a imagem distorce (achatamento).
-- **Resolução adaptativa**: tenta MJPG 720p; se a câmera não aceitar MJPG (fica em
-  formato cru e satura o USB), cai para 640x360 para manter ~30fps.
+## Pitfalls already fixed (do not regress)
+- **Camera enumeration** (`CameraEnumerator.cs`): DirectShow COM interop. The
+  `IEnumMoniker.Next` method REQUIRES the `[Out]` attribute + `ArraySubType=Interface`,
+  otherwise the list comes back empty and the app opens black.
+- **Framing** (zoom + reposition): there is ONE source of truth,
+  `MainWindow.CropRect(zoom, centerX, centerY)` in normalized camera coordinates.
+  The window applies it via `ImageBrush.Viewbox`; the selector (`FramingWindow`)
+  draws the guide rect from the SAME `CropRect`. Do not reintroduce `UniformToFill`
+  + transform (it caused selector↔window mismatch and distortion).
+- **Crop is recomputed when the 1st frame arrives** (in `RenderFrame`): the
+  resolution is only known then; without recomputing, the image distorts (squish).
+- **Adaptive resolution**: requests MJPG 720p; if the camera rejects MJPG (stays in
+  raw format and saturates USB), it falls back to 640x360 to keep ~30fps.
 
-## Distribuição
-- CI em `.github/workflows/release.yml`: criar tag `vX.Y.Z` e dar push gera a
-  Release com o `FloatingCam.exe` único. Não cria release em push normal de `master`.
-- Instalado localmente em `%LocalAppData%\Programs\FloatingCam\` com atalho no
-  Menu Iniciar.
-- O `.exe` não é assinado → SmartScreen mostra "Editor desconhecido" na 1ª execução.
+## Distribution
+- CI in `.github/workflows/release.yml`: pushing a `vX.Y.Z` tag builds the Release
+  with the single `FloatingCam.exe`. A normal `master` push does NOT create a release.
+- Installed locally under `%LocalAppData%\Programs\FloatingCam\` with a Start Menu
+  shortcut.
+- The `.exe` is unsigned → SmartScreen shows "Unknown publisher" on first run.
