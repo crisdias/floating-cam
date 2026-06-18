@@ -41,18 +41,53 @@ autossuficiente — não precisa instalar nada.
 ## Como usar
 
 1. Abra o `FloatingCam.exe`.
-2. **Clique com o botão direito** sobre a imagem para abrir o menu:
-   - **Webcam** → escolha a câmera.
-   - **Espelhar** → efeito espelho.
-   - **Cantos arredondados** / **Formato circular** → estilo da caixa.
-   - **Fechar** → encerra o app.
-3. **Mover:** clique e arraste sobre a imagem.
-4. **Redimensionar:** arraste as bordas/cantos. A alça de redimensionar (canto
+2. **Mover:** clique e arraste sobre a imagem.
+3. **Redimensionar:** arraste as bordas/cantos. A alça de redimensionar (canto
    inferior direito) só aparece quando a janela está em **foco** — clique no app
    para mostrá-la; ela some ao clicar em outro lugar.
+4. **Clique com o botão direito** sobre a imagem para abrir o menu de configurações.
 
 > O app roda em **instância única**: abrir de novo enquanto já está aberto não
 > cria uma segunda janela.
+
+<!-- TODO: adicionar captura de tela da janela flutuante aqui -->
+
+## Configurações
+
+Todas ficam no **menu de clique direito** sobre a janela. As mudanças valem na
+hora e são **lembradas entre sessões**.
+
+| Opção | O que faz |
+|-------|-----------|
+| **Webcam** | Lista as câmeras conectadas (pelos nomes reais) e troca entre elas. |
+| **Ajustar enquadramento…** | Abre uma janela para dar **zoom** e **reposicionar** a imagem, garantindo que você fique centralizado. Veja abaixo. |
+| **Espelhar** | Inverte a imagem horizontalmente (efeito espelho). |
+| **Cantos arredondados** | Deixa a caixa com os cantos arredondados. |
+| **Formato circular** | Deixa a câmera em formato de círculo (ótimo para facecam). |
+| **Fechar** | Encerra o app. |
+
+Além do menu, são salvos também o **tamanho** e a **posição** da janela.
+
+### Ajustar enquadramento
+
+<!-- TODO: adicionar captura de tela da janela de enquadramento aqui -->
+
+A janela mostra o **sinal completo da webcam** com uma **moldura** indicando o que
+vai aparecer na caixa flutuante (o resto fica escurecido):
+
+- **Zoom** — controle deslizante (1x a 4x) para aproximar.
+- **Reposicionar** — arraste a moldura sobre a imagem para escolher a região;
+  você alcança qualquer parte do quadro, inclusive as bordas.
+- **Reset** — volta ao enquadramento padrão (centralizado, sem zoom).
+
+> O app captura em **16:9**. Câmeras que suportam MJPG (ex.: Logitech Brio) rodam
+> em **720p a 30fps**; câmeras mais simples caem automaticamente para uma
+> resolução menor que mantém **30fps** (sem travar o vídeo).
+
+### Onde ficam as configurações
+
+Em `%AppData%\FloatingCam\settings.json` — tamanho, posição, câmera escolhida,
+espelho, formato e enquadramento (zoom + centro).
 
 ## Fluxo com o OBS
 
