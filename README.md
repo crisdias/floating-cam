@@ -20,6 +20,16 @@ o seu rosto) e posiciona a câmera em um canto, sem cobrir o conteúdo.
 - **Lembra suas configurações** entre sessões: tamanho, posição, câmera, espelho
   e formato.
 
+## Baixar (pronto para usar)
+
+Não precisa entender de programação: vá em **[Releases](../../releases)**, baixe o
+`FloatingCam.exe` da versão mais recente e dê duplo-clique. É um único arquivo,
+autossuficiente — não precisa instalar nada.
+
+> Na primeira vez, o Windows pode mostrar um aviso de **"Editor desconhecido"**
+> (SmartScreen), porque o app é open-source e não tem assinatura digital paga.
+> Clique em **Mais informações → Executar assim mesmo**.
+
 ## Requisitos
 
 - **Windows 10/11** (64 bits).
@@ -74,3 +84,9 @@ dotnet publish FloatingCam -c Release -r win-x64 --self-contained true `
 ## Licença
 
 MIT — sinta-se livre para usar, modificar e distribuir.
+
+## IA em Curso
+
+Sou co-fundador do **IA em Curso**, uma comunidade de letramento contínuo em IA onde pessoas de várias profissões e níveis de conhecimento aprendem a colocar a IA para trabalhar.
+
+Para saber mais, acesse https://iaemcurso.com.br/

@@ -16,6 +16,7 @@
     <Window.ContextMenu>
         <ContextMenu>
             <MenuItem x:Name="MenuCameras" Header="Webcam"/>
+            <MenuItem x:Name="MenuFraming" Header="Ajustar enquadramento…"/>
             <Separator/>
             <MenuItem x:Name="MenuMirror" Header="Espelhar" IsCheckable="True"/>
             <MenuItem x:Name="MenuRound" Header="Cantos arredondados" IsCheckable="True"/>
@@ -26,11 +27,11 @@
     </Window.ContextMenu>
 
     <!-- A borda recebe o clique para arrastar a janela -->
-    <Border x:Name="RootBorder" Background="Black" CornerRadius="0"
+    <Border x:Name="RootBorder" Background="Black" CornerRadius="0" ClipToBounds="True"
             MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
         <Border.Clip>
             <RectangleGeometry x:Name="ClipGeometry" RadiusX="0" RadiusY="0"/>
         </Border.Clip>
-        <Image x:Name="VideoImage" Stretch="UniformToFill"/>
+        <Rectangle x:Name="VideoRect"/>
     </Border>
 </Window>
