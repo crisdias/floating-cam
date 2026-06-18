@@ -63,3 +63,60 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+# FloatingCam — específico do projeto
+
+App **Windows-only**: caixa flutuante com a webcam (always-on-top, sem bordas),
+movível/redimensionável, para gravar aulas no OBS via captura de tela.
+
+## Stack
+- **C# / .NET 10 (WPF)**, `net10.0-windows`. Projeto em `FloatingCam/`.
+- Vídeo via **OpenCvSharp4** (backend **DirectShow**). Conversão de frame com
+  `OpenCvSharp4.WpfExtensions`.
+
+## Comandos
+O `dotnet` pode não estar no PATH deste ambiente; use o caminho completo:
+`"C:\Program Files\dotnet\dotnet.exe"`.
+
+```powershell
+# Build / run
+dotnet build FloatingCam -c Release
+dotnet run --project FloatingCam -c Release
+
+# Publicar .exe ÚNICO (libs nativas embutidas) — é o que o CI e o instalador usam
+dotnet publish FloatingCam -c Release -r win-x64 --self-contained true `
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+  -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
+```
+
+## Como verificar (não há testes automatizados)
+- App de GUI: rode o `.exe` e confira o **log** em `%Temp%\floatingcam.log`
+  (enumeração de câmeras, resolução/fourcc, FPS medido, exceções).
+- Configurações persistidas em `%AppData%\FloatingCam\settings.json`
+  (tamanho, posição, câmera, espelho, formato, zoom, centro do enquadramento).
+- **Instância única** (mutex `FloatingCam.SingleInstance`): pare o app antes de
+  rodar outra instância nos testes, senão a segunda encerra sozinha e/ou o arquivo
+  fica travado ao republicar. `Get-Process FloatingCam | Stop-Process -Force`.
+
+## Armadilhas já resolvidas (não regredir)
+- **Enumeração de câmeras** (`CameraEnumerator.cs`): interop COM do DirectShow. O
+  método `IEnumMoniker.Next` PRECISA do atributo `[Out]` + `ArraySubType=Interface`,
+  senão a lista volta vazia e o app abre preto.
+- **Enquadramento** (zoom + reposição): há UMA fonte de verdade,
+  `MainWindow.CropRect(zoom, centerX, centerY)` em coords normalizadas da câmera.
+  A janela aplica via `ImageBrush.Viewbox`; o seletor (`FramingWindow`) desenha a
+  moldura com o MESMO `CropRect`. Não reintroduzir `UniformToFill` + transform
+  (causava divergência seletor↔janela e distorção).
+- **Recorte recalcula quando o 1º frame chega** (em `RenderFrame`): a resolução só
+  é conhecida aí; sem recalcular, a imagem distorce (achatamento).
+- **Resolução adaptativa**: tenta MJPG 720p; se a câmera não aceitar MJPG (fica em
+  formato cru e satura o USB), cai para 640x360 para manter ~30fps.
+
+## Distribuição
+- CI em `.github/workflows/release.yml`: criar tag `vX.Y.Z` e dar push gera a
+  Release com o `FloatingCam.exe` único. Não cria release em push normal de `master`.
+- Instalado localmente em `%LocalAppData%\Programs\FloatingCam\` com atalho no
+  Menu Iniciar.
+- O `.exe` não é assinado → SmartScreen mostra "Editor desconhecido" na 1ª execução.
