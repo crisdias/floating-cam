@@ -1,0 +1,36 @@
+<Window x:Class="FloatingCam.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FloatingCam"
+        Icon="Assets/app.ico"
+        Width="320" Height="240"
+        MinWidth="120" MinHeight="90"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="True"
+        UseLayoutRounding="True">
+
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem x:Name="MenuCameras" Header="Webcam"/>
+            <Separator/>
+            <MenuItem x:Name="MenuMirror" Header="Espelhar" IsCheckable="True"/>
+            <MenuItem x:Name="MenuRound" Header="Cantos arredondados" IsCheckable="True"/>
+            <MenuItem x:Name="MenuCircle" Header="Formato circular" IsCheckable="True"/>
+            <Separator/>
+            <MenuItem x:Name="MenuClose" Header="Fechar"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+
+    <!-- A borda recebe o clique para arrastar a janela -->
+    <Border x:Name="RootBorder" Background="Black" CornerRadius="0"
+            MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
+        <Border.Clip>
+            <RectangleGeometry x:Name="ClipGeometry" RadiusX="0" RadiusY="0"/>
+        </Border.Clip>
+        <Image x:Name="VideoImage" Stretch="UniformToFill"/>
+    </Border>
+</Window>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5A6CF5"/>
+      <stop offset="1" stop-color="#8A40F0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo: quadrado arredondado -->
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+
+  <!-- Card branco = a caixa flutuante da webcam -->
+  <rect x="52" y="66" width="152" height="116" rx="26" fill="#FFFFFF"/>
+
+  <!-- Lente -->
+  <circle cx="128" cy="124" r="34" fill="url(#bg)"/>
+  <circle cx="128" cy="124" r="15" fill="#FFFFFF" opacity="0.92"/>
+  <!-- Brilho da lente -->
+  <circle cx="117" cy="113" r="6" fill="#FFFFFF"/>
+</svg>

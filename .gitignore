@@ -1,0 +1,21 @@
+# Build output do .NET
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+[Pp]ublish/
+*.user
+*.suo
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.csproj.user
+
+# Artefatos de empacotamento
+*.zip
+
+# Configuração local do Claude Code (não compartilhar)
+.claude/
+
+# Logs / temporários
+*.log
