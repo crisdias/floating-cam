@@ -94,6 +94,9 @@ como um apontador de tela (estilo Canva). **Solte** as teclas e ele some.
 e é capturado pelo OBS, não rouba o foco e não bloqueia seus cliques (você
 continua usando o programa normalmente).
 
+Dá para **ligar/desligar** o apontador no menu de clique direito (item
+**"Apontador de tela"**) — útil se você já usa esse atalho para outra coisa.
+
 ### Onde ficam as configurações
 
 Em `%AppData%\FloatingCam\settings.json` — tamanho, posição, câmera escolhida,

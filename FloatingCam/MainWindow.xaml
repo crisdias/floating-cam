@@ -22,6 +22,8 @@
             <MenuItem x:Name="MenuRound" Header="Cantos arredondados" IsCheckable="True"/>
             <MenuItem x:Name="MenuCircle" Header="Formato circular" IsCheckable="True"/>
             <Separator/>
+            <MenuItem x:Name="MenuPointer" Header="Apontador de tela (Ctrl+Win+Alt)" IsCheckable="True"/>
+            <Separator/>
             <MenuItem x:Name="MenuClose" Header="Fechar"/>
         </ContextMenu>
     </Window.ContextMenu>

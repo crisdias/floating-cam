@@ -43,6 +43,7 @@ public partial class MainWindow : System.Windows.Window
         public double Zoom { get; set; } = 1.0;
         public double CenterX { get; set; } = 0.5;
         public double CenterY { get; set; } = 0.5;
+        public bool PointerEnabled { get; set; } = true;
     }
 
     private Settings _settings = new();
@@ -58,6 +59,7 @@ public partial class MainWindow : System.Windows.Window
     // Screen pointer (orange dot) shown while Ctrl+Win+Alt is held, anywhere.
     private PointerOverlay? _pointer;
     private DispatcherTimer? _pointerTimer;
+    private bool _pointerEnabled = true;
 
     /// <summary>Live webcam bitmap (updated in-place on every frame).</summary>
     public WriteableBitmap? VideoSource => _bitmap;
@@ -102,6 +104,7 @@ public partial class MainWindow : System.Windows.Window
         MenuMirror.Click += (_, _) => { _mirror = MenuMirror.IsChecked; SaveSettings(); };
         MenuRound.Click += (_, _) => SetShape(MenuRound.IsChecked ? ShapeMode.Rounded : ShapeMode.Normal);
         MenuCircle.Click += (_, _) => SetShape(MenuCircle.IsChecked ? ShapeMode.Circle : ShapeMode.Normal);
+        MenuPointer.Click += (_, _) => { _pointerEnabled = MenuPointer.IsChecked; SaveSettings(); };
 
         // The resize grip only shows while the window has focus.
         Activated += (_, _) => ResizeMode = ResizeMode.CanResizeWithGrip;
@@ -169,6 +172,7 @@ public partial class MainWindow : System.Windows.Window
             _settings.Zoom = _zoom;
             _settings.CenterX = _centerX;
             _settings.CenterY = _centerY;
+            _settings.PointerEnabled = _pointerEnabled;
 
             Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
             File.WriteAllText(SettingsPath,
@@ -192,6 +196,8 @@ public partial class MainWindow : System.Windows.Window
         _zoom = _settings.Zoom;
         _centerX = _settings.CenterX;
         _centerY = _settings.CenterY;
+        _pointerEnabled = _settings.PointerEnabled;
+        MenuPointer.IsChecked = _pointerEnabled;
         _restoring = false;
 
         UpdateClip();
@@ -531,7 +537,8 @@ public partial class MainWindow : System.Windows.Window
 
     private void PointerTick(object? sender, EventArgs e)
     {
-        bool active = IsDown(VK_CONTROL) && IsDown(VK_MENU) && (IsDown(VK_LWIN) || IsDown(VK_RWIN));
+        bool active = _pointerEnabled
+            && IsDown(VK_CONTROL) && IsDown(VK_MENU) && (IsDown(VK_LWIN) || IsDown(VK_RWIN));
 
         if (active)
         {
