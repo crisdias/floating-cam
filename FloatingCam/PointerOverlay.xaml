@@ -1,0 +1,19 @@
+<Window x:Class="FloatingCam.PointerOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="48" Height="48"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        ResizeMode="NoResize"
+        IsHitTestVisible="False"
+        WindowStartupLocation="Manual">
+    <Grid>
+        <!-- Solid translucent orange disc (50%), crisp edge (no feather) -->
+        <Ellipse Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Fill="#80FF7A00"/>
+    </Grid>
+</Window>

@@ -1,10 +1,12 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 
@@ -52,6 +54,10 @@ public partial class MainWindow : System.Windows.Window
     private double _centerY = 0.5;
     private readonly ImageBrush _videoBrush = new() { Stretch = Stretch.Fill };
     private FramingWindow? _framingWindow;
+
+    // Screen pointer (orange dot) shown while Ctrl+Win+Alt is held, anywhere.
+    private PointerOverlay? _pointer;
+    private DispatcherTimer? _pointerTimer;
 
     /// <summary>Live webcam bitmap (updated in-place on every frame).</summary>
     public WriteableBitmap? VideoSource => _bitmap;
@@ -105,6 +111,7 @@ public partial class MainWindow : System.Windows.Window
         Loaded += MainWindow_Loaded;
         Closing += (_, _) => SaveSettings();
         Closed += (_, _) => StopCapture();
+        Closed += (_, _) => { _pointerTimer?.Stop(); _pointer?.Close(); };
 
         LoadSettings();
         ApplyWindowGeometry();
@@ -204,6 +211,7 @@ public partial class MainWindow : System.Windows.Window
 
         BuildCameraMenu();
         StartCaptureThread();
+        StartPointerWatcher();
 
         // Open the saved camera if it still exists; otherwise the first available one.
         if (cams.Count > 0)
@@ -494,6 +502,47 @@ public partial class MainWindow : System.Windows.Window
         _framingWindow = new FramingWindow(this) { Owner = this };
         _framingWindow.Closed += (_, _) => _framingWindow = null;
         _framingWindow.Show();
+    }
+
+    // --- Screen pointer (global hotkey: hold Ctrl+Win+Alt) ---
+
+    private const int VK_CONTROL = 0x11;
+    private const int VK_MENU = 0x12;   // Alt
+    private const int VK_LWIN = 0x5B;
+    private const int VK_RWIN = 0x5C;
+
+    [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int vKey);
+    [DllImport("user32.dll")] private static extern bool GetCursorPos(out POINT p);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct POINT { public int X; public int Y; }
+
+    private static bool IsDown(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
+
+    private void StartPointerWatcher()
+    {
+        _pointerTimer = new DispatcherTimer(DispatcherPriority.Input)
+        {
+            Interval = TimeSpan.FromMilliseconds(20),
+        };
+        _pointerTimer.Tick += PointerTick;
+        _pointerTimer.Start();
+    }
+
+    private void PointerTick(object? sender, EventArgs e)
+    {
+        bool active = IsDown(VK_CONTROL) && IsDown(VK_MENU) && (IsDown(VK_LWIN) || IsDown(VK_RWIN));
+
+        if (active)
+        {
+            _pointer ??= new PointerOverlay();
+            if (!_pointer.IsVisible) _pointer.Show();
+            if (GetCursorPos(out POINT p)) _pointer.MoveTo(p.X, p.Y);
+        }
+        else if (_pointer is { IsVisible: true })
+        {
+            _pointer.Hide();
+        }
     }
 
     private void RootBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

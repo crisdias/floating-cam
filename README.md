@@ -84,12 +84,27 @@ vai aparecer na caixa flutuante (o resto fica escurecido):
 > em **720p a 30fps**; câmeras mais simples caem automaticamente para uma
 > resolução menor que mantém **30fps** (sem travar o vídeo).
 
+### Apontador de tela (atalho global)
+
+Segure **Ctrl + Win + Alt** (a qualquer momento, mesmo com o foco em outro
+programa) para mostrar um **círculo laranja translúcido** que segue o mouse —
+como um apontador de tela (estilo Canva). **Solte** as teclas e ele some.
+
+É ideal para destacar algo durante a gravação: o apontador fica por cima de tudo
+e é capturado pelo OBS, não rouba o foco e não bloqueia seus cliques (você
+continua usando o programa normalmente).
+
 ### Onde ficam as configurações
 
 Em `%AppData%\FloatingCam\settings.json` — tamanho, posição, câmera escolhida,
 espelho, formato e enquadramento (zoom + centro).
 
 ## Fluxo com o OBS
+
+> ⚠️ **Abra o FloatingCam ANTES do OBS** (ou de qualquer programa que use a
+> webcam). A maioria das webcams só permite um programa por vez; se o OBS (ou
+> outro app) abrir a câmera primeiro, ele toma o controle dela e o FloatingCam
+> não consegue exibir a imagem. Ordem certa: **1) FloatingCam → 2) OBS**.
 
 - No OBS, use uma fonte de **Captura de Tela (Display Capture)** — ela pega tudo,
   inclusive a caixinha flutuante por cima do que você está mostrando.
