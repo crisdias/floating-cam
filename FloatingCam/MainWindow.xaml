@@ -28,8 +28,10 @@
         </ContextMenu>
     </Window.ContextMenu>
 
-    <!-- The border receives the click to drag the window -->
+    <!-- The border receives the click to drag the window. Cursor="None" hides the
+         mouse arrow while it's over the cam, so it never sits on your face on camera. -->
     <Border x:Name="RootBorder" Background="Black" CornerRadius="0" ClipToBounds="True"
+            Cursor="None"
             MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
         <Border.Clip>
             <RectangleGeometry x:Name="ClipGeometry" RadiusX="0" RadiusY="0"/>
